@@ -1,0 +1,69 @@
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between">
+        <div>
+          <h1 class="h3 mb-1"><%= @cafe.name %></h1>
+          <p class="text-muted mb-1"><%= @cafe.address.presence || "住所未登録" %></p>
+          <p class="mb-0"><%= @cafe.description.presence || "説明はまだありません。" %></p>
+        </div>
+        <% if user_signed_in? %>
+          <div class="d-flex gap-2">
+            <%= link_to "編集", edit_cafe_path(@cafe), class: "btn btn-outline-primary btn-sm" %>
+            <%= button_to "削除", cafe_path(@cafe), method: :delete, data: { turbo_confirm: "削除しますか？" }, class: "btn btn-outline-danger btn-sm" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h2 class="h5 mb-3">レビューを投稿</h2>
+      <% if user_signed_in? %>
+        <%= form_with model: [@cafe, @review], local: true do |f| %>
+          <%= render "shared/error_messages", object: f.object %>
+          <div class="mb-3">
+            <%= f.label :rating, "評価 (1〜5)", class: "form-label" %>
+            <%= f.number_field :rating, in: 1..5, class: "form-control" %>
+          </div>
+          <div class="mb-3">
+            <%= f.label :body, "コメント", class: "form-label" %>
+            <%= f.text_area :body, rows: 4, class: "form-control" %>
+          </div>
+          <%= f.submit "投稿する", class: "btn btn-primary" %>
+        <% end %>
+      <% else %>
+        <p class="mb-0">投稿するには <%= link_to "ログイン", new_session_path %> が必要です。</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div>
+    <h2 class="h5 mb-3">レビュー一覧</h2>
+    <% if @reviews.any? %>
+      <% @reviews.each do |review| %>
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <p class="mb-1"><strong>評価:</strong> <%= review.rating %> / 5</p>
+                <p class="mb-1"><strong>投稿者:</strong> <%= review.user_name %></p>
+                <p class="mb-0"><%= review.body %></p>
+              </div>
+              <% if user_signed_in? && review.user_name == current_user %>
+                <div class="d-flex gap-2">
+                  <%= link_to "編集", edit_review_path(review), class: "btn btn-sm btn-outline-primary" %>
+                  <%= button_to "削除", review_path(review), method: :delete, data: { turbo_confirm: "削除しますか？" }, class: "btn btn-sm btn-outline-danger" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="text-muted">まだレビューはありません。</p>
+    <% end %>
+  </div>
+</div>
+
